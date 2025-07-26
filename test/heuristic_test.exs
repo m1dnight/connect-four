@@ -68,87 +68,81 @@ defmodule C4.Test.Heuristic do
 
     test "opponent wins" do
       board = ~b/
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              |r|r|r|r| | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              |r|r|r|r| | | |
               /
       # losing pennalty, and all 5 possible moves are losing moves
-      assert -300_500 = Heuristic.score_board(board, :yellow)
+      assert -1100 = Heuristic.score_board(board, :yellow)
     end
 
     test "player wins" do
       board = ~b/
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              |y|y|y|y| | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              |y|y|y|y| | | |
               /
       # winnig score, and placing an extra y on the board makes "two" wins.
-      assert 300_100 = Heuristic.score_board(board, :yellow)
+      assert 1000 = Heuristic.score_board(board, :yellow)
     end
 
     test "one move away from winning" do
       board = ~b/
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              |y|y| |y| | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              |y|y| |y| | | |
               /
       # winnig score, and placing an extra y on the board makes "two" wins.
-      assert 100 = Heuristic.score_board(board, :yellow)
+      assert 500 = Heuristic.score_board(board, :yellow)
     end
 
     test "two ways to win" do
       board = ~b/
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              |y| | | | | |
-              |y| | | | | |
-              |y|y| |y| | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              |y| | | | | | |
+              |y| | | | | | |
+              |y|y| |y| | | |
               /
       # winnig score, and placing an extra y on the board makes "two" wins.
-      assert 200 = Heuristic.score_board(board, :yellow)
+      assert 1000 = Heuristic.score_board(board, :yellow)
     end
 
     test "five ways to win" do
       board = ~b/
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              |y| |y|y|y| |
-              |y|r|y|r|y|r|
-              |y|r|y|r|y|r|
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              |y| |y|y|y| | |
+              |y|r|y|r|y|r| |
+              |y|r|y|r|y|r| |
               /
       # winnig score, and placing an extra y on the board makes "two" wins.
-      assert 500 = Heuristic.score_board(board, :yellow)
+      assert 2500 = Heuristic.score_board(board, :yellow)
     end
 
     @tag :this
     test "figure out best move" do
       board = ~b/
-              | | |r|r| | |
-              | | |y|y| | |
-              | | |r|r| | |
-              | | |y|y| | |
-              | | |r|r| | |
-              | |r|r|y| | |
-              | |y|y|y| | |
+              | | |y|y| | | |
+              | | |r|r| | | |
+              | | |y|y| | | |
+              | | |r|r| | | |
+              | |r|r|y| | | |
+              | |y|y|y| | | |
               /
       # winnig score, and placing an extra y on the board makes "two" wins.
-      assert 500 = Heuristic.score_board(board, :yellow)
+      assert 1000 = Heuristic.score_board(board, :yellow)
     end
   end
 
@@ -160,59 +154,55 @@ defmodule C4.Test.Heuristic do
 
     test "making two consecutive tokens doesnt improve odds" do
       board = ~b/
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              |y| | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              |y| | | | | | |
               /
       assert 0 = Heuristic.score_move(board, {2, 1}, :yellow)
     end
 
     test "making three improves score by 100" do
       board = ~b/
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              |y|y| | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              |y|y| | | | | |
               /
       assert 0 = Heuristic.score_move(board, {1, 2}, :yellow)
       assert 0 = Heuristic.score_move(board, {2, 2}, :yellow)
       assert 0 = Heuristic.score_move(board, {5, 1}, :yellow)
       assert 0 = Heuristic.score_move(board, {6, 1}, :yellow)
       # these moves lead to a win the next turn
-      assert 100 = Heuristic.score_move(board, {3, 1}, :yellow)
-      assert 100 = Heuristic.score_move(board, {4, 1}, :yellow)
+      assert 500 = Heuristic.score_move(board, {3, 1}, :yellow)
+      assert 500 = Heuristic.score_move(board, {4, 1}, :yellow)
     end
 
     test "making four is winning score" do
       board = ~b/
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              | | | | | | |
-              |y|y|y| | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              |y|y|y| | | | |
               /
-      assert 300_100 = Heuristic.score_move(board, {4, 1}, :yellow)
+      assert 1000 = Heuristic.score_move(board, {4, 1}, :yellow)
     end
 
     @tag :thiss
     test "debug test" do
       board = ~b/
-              | | |r|r| | |
-              | | |y|y| | |
-              | | |r|r| | |
-              | | |y|y| | |
-              | | |r|r| | |
-              | |r|r|y| | |
-              | |y|y|y| | |
+              | | |r|r| | | |
+              | | |r|r| | | |
+              | | |y|y| | | |
+              | | |r|r| | | |
+              | |r|r|y| | | |
+              | |y|y|y| | | |
               /
 
       Board.playable_positions(board)

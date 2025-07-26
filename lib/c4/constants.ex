@@ -4,8 +4,8 @@ defmodule C4.Constants do
   """
   use C4.Types
 
-  @rows 7
-  @columns 6
+  @rows 6
+  @columns 7
 
   @row_wins (for row <- 1..@rows do
                for column <- 1..3 do

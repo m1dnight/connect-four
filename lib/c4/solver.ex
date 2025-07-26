@@ -70,16 +70,16 @@ defmodule C4.Solver do
     choice = if worst?, do: List.last(moves), else: hd(moves)
     # choice = hd(moves)
 
-    if depth == @depth do
-      IO.puts("#{player} can pick following moves:")
+    # if depth == @depth do
+    #   IO.puts("#{player} can pick following moves:")
 
-      for move <- moves do
-        %{position: {col, row}, score: score} = move
-        IO.puts("(#{col}, #{row}) :: #{score}")
-      end
+    #   for move <- moves do
+    #     %{position: {col, row}, score: score} = move
+    #     IO.puts("(#{col}, #{row}) :: #{score}")
+    #   end
 
-      IO.puts("Chose #{inspect(choice)}")
-    end
+    #   IO.puts("Chose #{inspect(choice)}")
+    # end
 
     choice
   end
