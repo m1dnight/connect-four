@@ -135,6 +135,21 @@ defmodule C4.Test.Heuristic do
       # winnig score, and placing an extra y on the board makes "two" wins.
       assert 500 = Heuristic.score_board(board, :yellow)
     end
+
+    @tag :this
+    test "figure out best move" do
+      board = ~b/
+              | | |r|r| | |
+              | | |y|y| | |
+              | | |r|r| | |
+              | | |y|y| | |
+              | | |r|r| | |
+              | |r|r|y| | |
+              | |y|y|y| | |
+              /
+      # winnig score, and placing an extra y on the board makes "two" wins.
+      assert 500 = Heuristic.score_board(board, :yellow)
+    end
   end
 
   describe "score_move/3" do
@@ -186,6 +201,23 @@ defmodule C4.Test.Heuristic do
               |y|y|y| | | |
               /
       assert 300_100 = Heuristic.score_move(board, {4, 1}, :yellow)
+    end
+
+    @tag :thiss
+    test "debug test" do
+      board = ~b/
+              | | |r|r| | |
+              | | |y|y| | |
+              | | |r|r| | |
+              | | |y|y| | |
+              | | |r|r| | |
+              | |r|r|y| | |
+              | |y|y|y| | |
+              /
+
+      Board.playable_positions(board)
+      |> Enum.map(&{&1, Heuristic.score_move(board, &1, :yellow)})
+      |> tap(&IO.inspect(&1, label: ""))
     end
   end
 end

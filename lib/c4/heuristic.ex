@@ -59,7 +59,7 @@ defmodule C4.Heuristic do
 
     # check how many moves the player can make to win directly.
     winning_moves = winning_moves(board, player)
-    score = score + Enum.count(winning_moves) * 100
+    score = score + Enum.count(winning_moves) * 500
 
     # check how many moves the player can make that cause the opponent to win directly.
     losing_moves = losing_moves(board, player)

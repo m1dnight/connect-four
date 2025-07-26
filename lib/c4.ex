@@ -11,7 +11,7 @@ defmodule C4 do
 
   def test do
     1..42
-    |> Enum.reduce(Board.new(), fn n, board ->
+    |> Enum.reduce_while(Board.new(), fn n, board ->
       player = if rem(n, 2) == 0, do: :red, else: :yellow
       color = if player == :red, do: &IO.ANSI.red/0, else: &IO.ANSI.yellow/0
 
@@ -19,12 +19,18 @@ defmodule C4 do
       IO.puts("Before")
       Board.pretty_print(board)
 
-      # yellow starts
-      move = Solver.minimax(board, player)
+      if winner = Board.winner?(board) do
+        {:halt, winner}
+      else
+        # yellow starts
+        move = Solver.minimax(board, player)
 
-      board = Board.put(board, move.position, player)
-      IO.puts("After")
-      Board.pretty_print(board)
+        board = Board.put(board, move.position, player)
+        IO.puts("After")
+        Board.pretty_print(board)
+
+        {:cont, board}
+      end
     end)
   end
 end

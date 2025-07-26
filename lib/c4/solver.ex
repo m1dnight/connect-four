@@ -46,7 +46,12 @@ defmodule C4.Solver do
 
   @spec minimax(Board.t(), depth(), player()) :: Move.t() | {:winner, player()}
   def minimax(board, 0, player) do
+    # IO.puts "------------"
+    # Board.pretty_print(board)
     score = Heuristic.score_board(board, player)
+
+    # IO.inspect score, label: "#{player}"
+    # IO.puts "------------"
     %Move{score: score}
   end
 
@@ -56,16 +61,14 @@ defmodule C4.Solver do
     # list all the possible moves the player can make.
     moves =
       board
-      |> Board.playable
-
-
-      _positions()
+      |> Board.playable_positions()
       |> Enum.sort()
-      |> Enum.take(1)
+      # |> Enum.take(1)
       |> Enum.map(&minimax_score_move(board, depth, player, &1))
       |> sort_options()
 
     choice = if worst?, do: List.last(moves), else: hd(moves)
+    # choice = hd(moves)
 
     if depth == @depth do
       IO.puts("#{player} can pick following moves:")
