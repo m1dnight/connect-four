@@ -6,6 +6,7 @@ defmodule C4.Heuristic do
   use C4.Types
 
   alias C4.Board
+  import C4.Constants
 
   @doc """
   Return all the moves that would allow the opponent to win with 1 move.
@@ -33,6 +34,31 @@ defmodule C4.Heuristic do
     |> Enum.filter(&Board.winning_move?(board, &1, player))
   end
 
+  @spec rate_series(Boad.t(), [position()], player()) :: number()
+  def rate_series(board, positions, player) do
+    positions
+    |> Enum.map(&Board.get(board, &1))
+    |> Enum.group_by(& &1)
+    |> Enum.map(fn {k, v} -> {k, Enum.count(v)} end)
+    |> Enum.into(%{})
+    |> case do
+      %{^player => 1, :empty => 3} ->
+        :math.pow(2, 1)
+
+      %{^player => 2, :empty => 2} ->
+        :math.pow(2, 2)
+
+      %{^player => 3, :empty => 1} ->
+        :math.pow(2, 3)
+
+      %{^player => 4, :empty => 0} ->
+        :math.pow(2, 4)
+
+      _ ->
+        0
+    end
+  end
+
   @doc """
   Returns a score for the state of this board.
 
@@ -43,30 +69,21 @@ defmodule C4.Heuristic do
     opponent = if player == :yellow, do: :red, else: :yellow
 
     # check if this board has a winner
-    winner = Board.winner?(board)
+    # winner = Board.winner?(board)
 
     score =
-      cond do
-        winner == false ->
-          0
+      wins()
+      |> Enum.reduce(0, fn positions, score ->
+        score + rate_series(board, positions, player)
+      end)
 
-        winner == player ->
-          500
+    opponent_score =
+      wins()
+      |> Enum.reduce(0, fn positions, score ->
+        score + rate_series(board, positions, opponent)
+      end)
 
-        winner == opponent ->
-          -500
-      end
-
-    # check how many moves the player can make to win directly.
-    winning_moves = winning_moves(board, player)
-    score = score + Enum.count(winning_moves) * 500
-
-    # check how many moves the player can make that cause the opponent to win directly.
-    losing_moves = losing_moves(board, player)
-    score = score - Enum.count(losing_moves) * 100
-
-    # return the total score
-    score
+    score - opponent_score
   end
 
   @doc """

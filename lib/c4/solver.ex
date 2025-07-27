@@ -7,7 +7,7 @@ defmodule C4.Solver do
   alias C4.Board
   alias C4.Heuristic
 
-  @depth 5
+  @depth 6
 
   typedstruct module: Move do
     use C4.Types
@@ -55,7 +55,7 @@ defmodule C4.Solver do
     %Move{score: score}
   end
 
-  def minimax(board, depth, player) do
+  def minimax(board, depth, player) when depth == @depth do
     worst? = player == :red
 
     # list all the possible moves the player can make.
@@ -67,21 +67,21 @@ defmodule C4.Solver do
       |> Enum.map(&minimax_score_move(board, depth, player, &1))
       |> sort_options()
 
-    choice = if worst?, do: List.last(moves), else: hd(moves)
-    # choice = hd(moves)
+    if worst?, do: List.last(moves), else: hd(moves)
+  end
 
-    # if depth == @depth do
-    #   IO.puts("#{player} can pick following moves:")
+  def minimax(board, depth, player) do
+    worst? = player == :red
 
-    #   for move <- moves do
-    #     %{position: {col, row}, score: score} = move
-    #     IO.puts("(#{col}, #{row}) :: #{score}")
-    #   end
+    # list all the possible moves the player can make.
+    moves =
+      board
+      |> Board.playable_positions()
+      |> Enum.sort()
+      |> Enum.map(&minimax_score_move(board, depth, player, &1))
+      |> sort_options()
 
-    #   IO.puts("Chose #{inspect(choice)}")
-    # end
-
-    choice
+    if worst?, do: List.last(moves), else: hd(moves)
   end
 
   @doc """

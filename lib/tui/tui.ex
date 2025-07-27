@@ -26,7 +26,7 @@ defmodule Counter do
         Map.update!(model, :position, &min(&1 + 1, columns()))
 
       {:event, %{key: 65515}} ->
-        Map.update!(model, :position, &max(1, &1 - 1))
+        Map.update!(model, :position, &max(0, &1 - 1))
 
       {:event, %{key: 32}} ->
         # determine column
@@ -83,11 +83,12 @@ defmodule Counter do
               end
 
               table_row do
+                table_cell(content: " ")
                 for i <- 1..columns() do
                   if state.waiting do
                     table_cell(content: " ")
                   else
-                    content = if state.position == i - 1, do: "■", else: " "
+                    content = if state.position == i, do: "■", else: " "
                     table_cell(content: content, color: :red)
                   end
                 end

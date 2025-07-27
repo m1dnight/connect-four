@@ -82,7 +82,7 @@ defmodule C4.Board do
   Returns the color of the winning player, or false if nobody won.
   """
   @spec winner?(Board.t()) :: :yellow | :red | false
-  def winner?(board) do
+def winner?(board) do
     wins()
     |> Enum.reduce_while(false, fn positions, _ ->
       positions

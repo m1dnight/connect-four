@@ -3,6 +3,7 @@ defmodule C4 do
 
   alias C4.Board
   alias C4.Solver
+  import C4.Board
 
   defmacro __using__(_opts) do
     quote do
@@ -10,27 +11,29 @@ defmodule C4 do
   end
 
   def test do
-    1..42
-    |> Enum.reduce_while(Board.new(), fn n, board ->
-      player = if rem(n, 2) == 0, do: :red, else: :yellow
-      color = if player == :red, do: &IO.ANSI.red/0, else: &IO.ANSI.yellow/0
+    board = ~b/
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | | | | | | | |
+              | |y|y|y| | | |
+              /
 
-      IO.puts(color.() <> "##############################################" <> IO.ANSI.reset())
-      IO.puts("Before")
-      Board.pretty_print(board)
+    Board.playable_positions(board)
+    |> Enum.each(fn position ->
+      score =
+        board
+        |> Board.put(position, :yellow)
+        |> C4.Heuristic.score_board(:yellow)
 
-      if winner = Board.winner?(board) do
-        {:halt, winner}
-      else
-        # yellow starts
-        move = Solver.minimax(board, player)
-
-        board = Board.put(board, move.position, player)
-        IO.puts("After")
-        Board.pretty_print(board)
-
-        {:cont, board}
-      end
+      IO.inspect {score, position}
     end)
+
+    # # C4.Constants.wins()
+    # # |> Enum.map(fn win ->
+    # win = [{1, 1}, {2, 1}, {3, 1}, {4, 1}]
+    # C4.Heuristic.rate_series(board, win, :yellow)
+    # # end)
   end
 end
