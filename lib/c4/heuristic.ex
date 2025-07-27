@@ -34,31 +34,6 @@ defmodule C4.Heuristic do
     |> Enum.filter(&Board.winning_move?(board, &1, player))
   end
 
-  @spec rate_series(Boad.t(), [position()], player()) :: number()
-  def rate_series(board, positions, player) do
-    positions
-    |> Enum.map(&Board.get(board, &1))
-    |> Enum.group_by(& &1)
-    |> Enum.map(fn {k, v} -> {k, Enum.count(v)} end)
-    |> Enum.into(%{})
-    |> case do
-      %{^player => 1, :empty => 3} ->
-        :math.pow(2, 1)
-
-      %{^player => 2, :empty => 2} ->
-        :math.pow(2, 2)
-
-      %{^player => 3, :empty => 1} ->
-        :math.pow(2, 3)
-
-      %{^player => 4, :empty => 0} ->
-        :math.pow(2, 4)
-
-      _ ->
-        0
-    end
-  end
-
   @doc """
   Returns a score for the state of this board.
 
@@ -68,12 +43,18 @@ defmodule C4.Heuristic do
   def score_board(board, player) do
     opponent = if player == :yellow, do: :red, else: :yellow
 
-    # check if this board has a winner
-    # winner = Board.winner?(board)
+    # if the board is winnable by the opponent, give it the worst score.
+    score =
+      if winning_moves(board, opponent) != [] do
+        -10_000
+      else
+        0
+      end
 
     score =
       wins()
-      |> Enum.reduce(0, fn positions, score ->
+      |> Enum.reduce(score, fn positions, score ->
+        # IO.inspect rate_series(board, positions, player), label: "#{inspect positions}"
         score + rate_series(board, positions, player)
       end)
 
@@ -84,6 +65,31 @@ defmodule C4.Heuristic do
       end)
 
     score - opponent_score
+  end
+
+  @spec rate_series(Boad.t(), [position()], player()) :: number()
+  def rate_series(board, positions, player) do
+    positions
+    |> Enum.map(&Board.get(board, &1))
+    |> Enum.group_by(& &1)
+    |> Enum.map(fn {k, v} -> {k, Enum.count(v)} end)
+    |> Enum.into(%{})
+    |> case do
+      %{^player => 1, :empty => 3} ->
+        :math.pow(10, 1)
+
+      %{^player => 2, :empty => 2} ->
+        :math.pow(10, 2)
+
+      %{^player => 3, :empty => 1} ->
+        :math.pow(10, 3)
+
+      %{^player => 4} ->
+        :math.pow(10, 4)
+
+      _ ->
+        0
+    end
   end
 
   @doc """

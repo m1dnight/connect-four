@@ -8,7 +8,7 @@ defmodule C4.Constants do
   @columns 7
 
   @row_wins (for row <- 1..@rows do
-               for column <- 1..3 do
+               for column <- 1..4 do
                  for col <- (0 + column)..(3 + column) do
                    {col, row}
                  end
@@ -18,7 +18,7 @@ defmodule C4.Constants do
 
   # 24 possible wins in columns
   @col_wins (for column <- 1..@columns do
-               for row <- 1..4 do
+               for row <- 1..3 do
                  for r <- (0 + row)..(3 + row) do
                    {column, r}
                  end
@@ -27,7 +27,7 @@ defmodule C4.Constants do
             |> Enum.concat()
 
   # 12 diagonal wins
-  @diagonal_wins_forward (for column <- 1..3 do
+  @diagonal_wins_forward (for column <- 1..4 do
                             for row <- 4..@rows do
                               for i <- 0..3 do
                                 {column + i, row - i}
@@ -45,7 +45,7 @@ defmodule C4.Constants do
                            end)
                           |> Enum.concat()
 
-  @wins @col_wins ++ @diagonal_wins_forward ++ @diagonal_wins_backward ++ @row_wins
+  @wins @col_wins ++ @row_wins ++ @diagonal_wins_backward ++ @diagonal_wins_forward
 
   @spec wins :: [[position()]]
   def wins, do: @wins

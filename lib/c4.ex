@@ -16,8 +16,8 @@ defmodule C4 do
               | | | | | | | |
               | | | | | | | |
               | | | | | | | |
-              | | | | | | | |
-              | |y|y|y| | | |
+              | | |y|y| | | |
+              | |y|r|r|r| | |
               /
 
     Board.playable_positions(board)
@@ -25,9 +25,11 @@ defmodule C4 do
       score =
         board
         |> Board.put(position, :yellow)
+        |> Board.pretty_print()
         |> C4.Heuristic.score_board(:yellow)
 
-      IO.inspect {score, position}
+      IO.inspect {position, score}
+
     end)
 
     # # C4.Constants.wins()
