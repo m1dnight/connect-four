@@ -24,7 +24,7 @@ defmodule C4.BoardTest do
   end
 
   describe "put/3 and get/2" do
-    test "puts and gets a token at a position" do
+    test "puts and gets a player at a position" do
       for row <- 1..rows(), column <- 1..columns() do
         board = Board.new()
         board = Board.put(board, {column, row}, :yellow)
@@ -32,7 +32,7 @@ defmodule C4.BoardTest do
       end
     end
 
-    test "overwrites existing token" do
+    test "overwrites existing player" do
       board = Board.new()
 
       for row <- 1..rows(), column <- 1..columns() do
@@ -87,7 +87,7 @@ defmodule C4.BoardTest do
       assert Enum.sort(positions) == Enum.sort(expected)
     end
 
-    test "returns correct positions when some columns have tokens" do
+    test "returns correct positions when some columns have players" do
       board = Board.new()
       board = Board.put(board, {1, 1}, :yellow)
       board = Board.put(board, {1, 2}, :red)
@@ -120,7 +120,7 @@ defmodule C4.BoardTest do
       assert Board.playable_position(board, 1) == {1, 1}
     end
 
-    test "returns next available row when column has tokens" do
+    test "returns next available row when column has players" do
       board = Board.new()
       board = Board.put(board, {1, 1}, :yellow)
       board = Board.put(board, {1, 2}, :red)
@@ -214,7 +214,7 @@ defmodule C4.BoardTest do
   end
 
   describe "same_player?/2" do
-    test "returns player when all positions have same token" do
+    test "returns player when all positions have same player" do
       board = Board.new()
       board = Board.put(board, {1, 1}, :yellow)
       board = Board.put(board, {2, 1}, :yellow)
@@ -224,7 +224,7 @@ defmodule C4.BoardTest do
       assert Board.same_player?(positions, board) == :yellow
     end
 
-    test "returns false when positions have different tokens" do
+    test "returns false when positions have different players" do
       board = Board.new()
       board = Board.put(board, {1, 1}, :yellow)
       board = Board.put(board, {2, 1}, :red)
@@ -303,26 +303,26 @@ defmodule C4.BoardTest do
   end
 
   describe "random/1" do
-    test "creates board with specified number of tokens" do
+    test "creates board with specified number of players" do
       board = Board.random(5)
 
-      token_count =
+      player_count =
         board.board
         |> Map.values()
         |> Enum.count(&(&1 != :empty))
 
-      assert token_count == 5
+      assert player_count == 5
     end
 
-    test "creates board with default 5 tokens" do
+    test "creates board with default 5 players" do
       board = Board.random()
 
-      token_count =
+      player_count =
         board.board
         |> Map.values()
         |> Enum.count(&(&1 != :empty))
 
-      assert token_count == 5
+      assert player_count == 5
     end
   end
 end

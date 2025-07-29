@@ -13,9 +13,9 @@ defmodule C4.Board do
     @typedoc """
     Represents a board, the player, and the opponent.
     """
-    field(:board, %{position() => token()})
-    field(:player, token(), default: :yellow)
-    field(:opponent, token(), default: :red)
+    field(:board, %{position() => player()})
+    field(:player, player(), default: :yellow)
+    field(:opponent, player(), default: :red)
   end
 
   typedstruct module: Position do
@@ -47,27 +47,27 @@ defmodule C4.Board do
   Generates a random board.
   """
   @spec random(non_neg_integer()) :: Board.t()
-  def random(tokens \\ 5) do
-    Enum.reduce(1..tokens, new(), fn _, board ->
-      token = Enum.shuffle([:red, :yellow]) |> hd()
+  def random(players \\ 5) do
+    Enum.reduce(1..players, new(), fn _, board ->
+      player = Enum.shuffle([:red, :yellow]) |> hd()
       position = board |> playable_positions() |> Enum.shuffle() |> hd()
-      put(board, position, token)
+      put(board, position, player)
     end)
   end
 
   @doc """
-  Put a token on the given position.
+  Put a player on the given position.
   """
-  @spec put(Board.t(), position(), token()) :: Board.t()
-  def put(board, position, token) do
-    new_grid = Map.put(board.board, position, token)
+  @spec put(Board.t(), position(), player()) :: Board.t()
+  def put(board, position, player) do
+    new_grid = Map.put(board.board, position, player)
     %{board | board: new_grid}
   end
 
   @doc """
-  Put a token on the given position.
+  Put a player on the given position.
   """
-  @spec get(Board.t(), position()) :: token()
+  @spec get(Board.t(), position()) :: player()
   def get(board, position) do
     Map.get(board.board, position)
   end
@@ -81,7 +81,7 @@ defmodule C4.Board do
   end
 
   @doc """
-  Returns a list of positions a token can be placed.
+  Returns a list of positions a player can be placed.
   """
   @spec playable_positions(Board.t()) :: [position()]
   def playable_positions(board) do
@@ -122,17 +122,17 @@ defmodule C4.Board do
         :empty ->
           {:cont, false}
 
-        token ->
-          {:halt, token}
+        player ->
+          {:halt, player}
       end
     end)
   end
 
   @doc """
-  Given a series of positions, checks if theyre all the same token. Returns
-  false, or the token in case theyre all the same.
+  Given a series of positions, checks if theyre all the same player. Returns
+  false, or the player in case theyre all the same.
   """
-  @spec same_player?([position()], Board.t()) :: false | token()
+  @spec same_player?([position()], Board.t()) :: false | player()
   def same_player?(positions, board) do
     positions
     |> Enum.map(&get(board, &1))
@@ -149,7 +149,7 @@ defmodule C4.Board do
   @doc """
   Checks if the move to be made results in the player winning.
   """
-  @spec winning_move?(Board.t(), position(), token()) :: boolean()
+  @spec winning_move?(Board.t(), position(), player()) :: boolean()
   def winning_move?(board, position, player) do
     board = put(board, position, player)
 
@@ -166,7 +166,7 @@ defmodule C4.Board do
   def pretty_print(%Board{} = board, highlights \\ []) do
     IO.puts("   " <> Enum.map_join(1..columns(), " ", &to_string/1) <> "")
 
-    token = "■"
+    player = "■"
 
     board = Enum.reduce(highlights, board, fn pos, board -> put(board, pos, :highlight) end)
 
@@ -175,9 +175,9 @@ defmodule C4.Board do
         for column <- 1..columns() do
           case Map.get(board.board, {column, row}) do
             :empty -> IO.ANSI.white() <> " " <> IO.ANSI.reset()
-            :yellow -> IO.ANSI.yellow() <> token <> IO.ANSI.reset()
-            :red -> IO.ANSI.red() <> token <> IO.ANSI.reset()
-            :highlight -> IO.ANSI.bright() <> token <> IO.ANSI.reset()
+            :yellow -> IO.ANSI.yellow() <> player <> IO.ANSI.reset()
+            :red -> IO.ANSI.red() <> player <> IO.ANSI.reset()
+            :highlight -> IO.ANSI.bright() <> player <> IO.ANSI.reset()
           end
         end
 

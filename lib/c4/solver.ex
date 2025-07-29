@@ -28,9 +28,9 @@ defmodule C4.Solver do
     moves
     |> Enum.group_by(& &1.score)
     |> Enum.sort_by(&elem(&1, 0), :desc)
-    |> Enum.map(fn {_score, moves} ->
-      Enum.sort_by(moves, &center_distance/1)
-    end)
+    # |> Enum.map(fn {_score, moves} ->
+    #   Enum.sort_by(moves, &center_distance/1)
+    # end)
     |> Enum.concat()
   end
 
@@ -54,20 +54,6 @@ defmodule C4.Solver do
     %Move{score: score}
   end
 
-  def minimax(board, depth, player) when depth == @depth do
-    worst? = player == :red
-
-    # list all the possible moves the player can make.
-    moves =
-      board
-      |> Board.playable_positions()
-      |> Enum.sort()
-      |> Enum.map(&minimax_score_move(board, depth, player, &1))
-      |> sort_options()
-
-    if worst?, do: List.last(moves), else: hd(moves)
-  end
-
   def minimax(board, depth, player) do
     worst? = player == :red
 
@@ -86,7 +72,7 @@ defmodule C4.Solver do
   Given a board, and a move, returns the score for this board if the player makes that move.
   If the player wins, the score is returned. If the player does not win, the score is computed using minimax.
   """
-  @spec minimax_score_move(Board.t(), non_neg_integer(), token(), position()) :: Move.t()
+  @spec minimax_score_move(Board.t(), non_neg_integer(), player(), position()) :: Move.t()
   def minimax_score_move(board, depth, player, position) do
     opponent = if player == :yellow, do: :red, else: :yellow
 

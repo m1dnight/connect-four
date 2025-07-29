@@ -8,10 +8,15 @@ defmodule C4.Heuristic do
   alias C4.Board
   import C4.Constants
 
+  @doc "Returns the opponent of the given player's name."
+  @spec opponent(player()) :: player()
+  def opponent(:yellow), do: :red
+  def opponent(:red), do: :yellow
+
   @doc """
   Return all the moves that would allow the opponent to win with 1 move.
   """
-  @spec losing_moves(Board.t(), token()) :: [position()]
+  @spec losing_moves(Board.t(), player()) :: [position()]
   def losing_moves(board, player) do
     board
     |> Board.playable_positions()
@@ -27,7 +32,7 @@ defmodule C4.Heuristic do
   @doc """
   For a given player, lists the moves that will cause an instant win.
   """
-  @spec winning_moves(Board.t(), token()) :: [position()]
+  @spec winning_moves(Board.t(), player()) :: [position()]
   def winning_moves(board, player) do
     board
     |> Board.playable_positions()
@@ -39,7 +44,7 @@ defmodule C4.Heuristic do
 
   The score is determined for the given player.
   """
-  @spec score_board(Board.t(), token()) :: integer()
+  @spec score_board(Board.t(), player()) :: integer()
   def score_board(board, player) do
     opponent = if player == :yellow, do: :red, else: :yellow
 
@@ -95,7 +100,7 @@ defmodule C4.Heuristic do
   @doc """
   Given a board and a move, rates the board after making this move.
   """
-  @spec score_move(Board.t(), position(), token()) :: integer()
+  @spec score_move(Board.t(), position(), player()) :: integer()
   def score_move(board, position, player) do
     board
     |> Board.put(position, player)

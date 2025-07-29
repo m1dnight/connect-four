@@ -123,7 +123,7 @@ defmodule C4.HeuristicTest do
   end
 
   describe "rate_series/3" do
-    test "scores 1 token with 3 empty as 10" do
+    test "scores 1 player with 3 empty as 10" do
       board = Board.new()
       board = Board.put(board, {1, 1}, :yellow)
 
@@ -132,7 +132,7 @@ defmodule C4.HeuristicTest do
       assert score == 10.0
     end
 
-    test "scores 2 tokens with 2 empty as 100" do
+    test "scores 2 players with 2 empty as 100" do
       board = Board.new()
       board = Board.put(board, {1, 1}, :yellow)
       board = Board.put(board, {2, 1}, :yellow)
@@ -142,7 +142,7 @@ defmodule C4.HeuristicTest do
       assert score == 100.0
     end
 
-    test "scores 3 tokens with 1 empty as 1000" do
+    test "scores 3 players with 1 empty as 1000" do
       board = Board.new()
       board = Board.put(board, {1, 1}, :yellow)
       board = Board.put(board, {2, 1}, :yellow)
@@ -153,7 +153,7 @@ defmodule C4.HeuristicTest do
       assert score == 1000.0
     end
 
-    test "scores 4 tokens (winning) as 10000" do
+    test "scores 4 players (winning) as 10000" do
       board = Board.new()
       board = Board.put(board, {1, 1}, :yellow)
       board = Board.put(board, {2, 1}, :yellow)
@@ -231,7 +231,7 @@ defmodule C4.HeuristicTest do
                   /
 
         score = Heuristic.score_board(board, :yellow)
-        # Red has 3 in a row (threat), yellow has 1 token - should be negative
+        # Red has 3 in a row (threat), yellow has 1 player - should be negative
         assert score < 0
       end
 

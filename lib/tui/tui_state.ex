@@ -16,8 +16,8 @@ defmodule C4.Tui.State do
 
   typedstruct do
     field(:board, Board.t(), default: Board.new())
-    field(:player, token(), default: :red)
-    field(:moves, [{position(), token()}], default: [])
+    field(:player, player(), default: :red)
+    field(:moves, [{position(), player()}], default: [])
     field(:game_over, boolean(), default: false)
     field(:selected_column, non_neg_integer(), default: 1)
     field(:waiting, boolean(), default: false)
@@ -77,7 +77,7 @@ defmodule C4.Tui.State do
   end
 
   @doc """
-  Insert token on current position.
+  Insert player on current position.
   """
   @spec place(State.t()) :: State.t()
   def place(state) when state.waiting, do: state

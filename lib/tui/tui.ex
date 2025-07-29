@@ -138,13 +138,13 @@ defmodule C4.Tui do
           table_cell(content: "#{row}")
 
           for col <- 1..columns() do
-            token_color =
+            player_color =
               case Board.get(state.board, {col, row}) do
                 :empty -> :black
                 p -> p
               end
 
-            table_cell(content: "■", color: token_color)
+            table_cell(content: "■", color: player_color)
           end
         end
       end
