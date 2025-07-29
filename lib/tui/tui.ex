@@ -36,7 +36,7 @@ defmodule C4.Tui do
   def render(state) do
     view do
       row do
-        column size: 6 do
+        column size: 4 do
           # Board Panel
           panel title: "Board" do
             label do
@@ -48,7 +48,7 @@ defmodule C4.Tui do
         end
 
         # Move history panel
-        column size: 6 do
+        column size: 8 do
           panel title: "Moves" do
             for move <- state.moves do
               move(move)
@@ -98,6 +98,10 @@ defmodule C4.Tui do
   end
 
   @spec move_message(State.t()) :: Ratatouille.Renderer.Element.t()
+  defp move_message(state) when state.game_over do
+    text(content: "Game Over!")
+  end
+
   defp move_message(state) do
     text(content: "#{String.capitalize("#{state.player}")}'s move", color: state.player)
   end

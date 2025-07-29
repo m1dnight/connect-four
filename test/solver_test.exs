@@ -47,5 +47,33 @@ defmodule C4.SolverTest do
       move = Solver.minimax(board, :yellow)
       assert move.position == {1, 4}
     end
+
+    test "identifies best move" do
+      board = ~b/
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                |r| |y| | | | |
+                |r| |y| | | | |
+                /
+
+      move = Solver.minimax(board, :yellow)
+      assert move.position == {3, 3}
+    end
+
+    test "identifies best move for win" do
+      board = ~b/
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                | | |y| | | | |
+                |r| |y| | | | |
+                |r| |y| | | | |
+                /
+
+      move = Solver.minimax(board, :yellow)
+      assert move.position == {3, 4}
+    end
   end
 end

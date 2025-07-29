@@ -61,7 +61,9 @@ defmodule C4.Tui.State do
   def ai_moved(state, move) do
     board = state.board |> Board.put(move.position, :yellow)
     moves = [{move.position, :yellow} | state.moves]
+
     %{state | board: board, player: :red, waiting: false, moves: moves}
+    |> game_over?()
   end
 
   @doc """
@@ -96,6 +98,7 @@ defmodule C4.Tui.State do
             moves: [move_entry | state.moves]
         }
     end
+    |> game_over?()
   end
 
   @spec ai_move(State.t()) :: State.t() | {State.t(), Command.t()}
@@ -118,5 +121,13 @@ defmodule C4.Tui.State do
     Board.playable_positions(board)
     |> Enum.filter(fn {col, _row} -> col == column end)
     |> List.first()
+  end
+
+  defp game_over?(state) do
+    if Board.winner?(state.board) do
+      %{state | game_over: true}
+    else
+      state
+    end
   end
 end
