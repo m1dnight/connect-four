@@ -14,6 +14,16 @@ defmodule C4.Heuristic do
   def opponent(:red), do: :yellow
 
   @doc """
+  For a given player, lists the moves that will cause an instant win.
+  """
+  @spec direct_wins(Board.t(), player()) :: [position()]
+  def direct_wins(board, player) do
+    board
+    |> Board.playable_positions()
+    |> Enum.filter(&Board.winning_move?(board, &1, player))
+  end
+
+  @doc """
   Return all the moves that would allow the opponent to win with 1 move.
   """
   @spec losing_moves(Board.t(), player()) :: [position()]
@@ -23,20 +33,10 @@ defmodule C4.Heuristic do
     |> Enum.filter(fn position ->
       board
       |> Board.put(position, player)
-      |> winning_moves(board.opponent)
+      |> direct_wins(board.opponent)
       |> Enum.empty?()
       |> Kernel.not()
     end)
-  end
-
-  @doc """
-  For a given player, lists the moves that will cause an instant win.
-  """
-  @spec winning_moves(Board.t(), player()) :: [position()]
-  def winning_moves(board, player) do
-    board
-    |> Board.playable_positions()
-    |> Enum.filter(&Board.winning_move?(board, &1, player))
   end
 
   @doc """
@@ -50,7 +50,7 @@ defmodule C4.Heuristic do
 
     # if the board is winnable by the opponent, give it the worst score.
     score =
-      if winning_moves(board, opponent) != [] do
+      if direct_wins(board, opponent) != [] do
         -10_000
       else
         0

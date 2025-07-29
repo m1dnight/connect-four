@@ -80,6 +80,11 @@ defmodule C4.Board do
     get(board, position) == :empty
   end
 
+  @doc "Returns the opponent of the given player's name."
+  @spec opponent(player()) :: player()
+  def opponent(:yellow), do: :red
+  def opponent(:red), do: :yellow
+
   @doc """
   Returns a list of positions a player can be placed.
   """
@@ -157,6 +162,21 @@ defmodule C4.Board do
     |> Enum.filter(&(Enum.member?(&1, position) and player == same_player?(&1, board)))
     |> Enum.empty?()
     |> Kernel.not()
+  end
+
+  @doc """
+  Checks if the move to be made results in the opponent winning.
+  """
+  @spec losing_move?(Board.t(), position(), player()) :: boolean()
+  def losing_move?(board, position, player) do
+    board = put(board, position, player)
+
+    # check all the moves the opponent can make, and see if they are winning
+    # moves.
+    board
+    |> playable_positions()
+    |> Enum.map(&winning_move?(board, &1, opponent(player)))
+    |> Enum.any?()
   end
 
   @doc """

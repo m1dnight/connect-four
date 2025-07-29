@@ -5,7 +5,7 @@ defmodule C4.HeuristicTest do
   alias C4.{Board, Heuristic}
   import C4.Board
 
-  describe "winning_moves/2" do
+  describe "direct_wins/2" do
     test "identifies horizontal winning move" do
       board = ~b/
                 | | | | | | | |
@@ -16,8 +16,8 @@ defmodule C4.HeuristicTest do
                 |y|y|y| | | | |
                 /
 
-      winning_moves = Heuristic.winning_moves(board, :yellow)
-      assert {4, 1} in winning_moves
+      direct_wins = Heuristic.direct_wins(board, :yellow)
+      assert {4, 1} in direct_wins
     end
 
     test "identifies vertical winning move" do
@@ -30,8 +30,8 @@ defmodule C4.HeuristicTest do
                 |y| | | | | | |
                 /
 
-      winning_moves = Heuristic.winning_moves(board, :yellow)
-      assert {1, 4} in winning_moves
+      direct_wins = Heuristic.direct_wins(board, :yellow)
+      assert {1, 4} in direct_wins
     end
 
     test "identifies diagonal winning move (ascending)" do
@@ -44,8 +44,8 @@ defmodule C4.HeuristicTest do
                 |r|r|r| | | | |
                 /
 
-      winning_moves = Heuristic.winning_moves(board, :yellow)
-      assert {4, 1} in winning_moves
+      direct_wins = Heuristic.direct_wins(board, :yellow)
+      assert {4, 1} in direct_wins
     end
 
     test "identifies diagonal winning move (descending)" do
@@ -58,14 +58,14 @@ defmodule C4.HeuristicTest do
                 | |r|r|r| | | |
                 /
 
-      winning_moves = Heuristic.winning_moves(board, :yellow)
-      assert {1, 1} in winning_moves
+      direct_wins = Heuristic.direct_wins(board, :yellow)
+      assert {1, 1} in direct_wins
     end
 
     test "returns empty list when no winning moves available" do
       board = Board.new()
-      winning_moves = Heuristic.winning_moves(board, :yellow)
-      assert winning_moves == []
+      direct_wins = Heuristic.direct_wins(board, :yellow)
+      assert direct_wins == []
     end
 
     test "identifies multiple winning moves" do
@@ -78,9 +78,9 @@ defmodule C4.HeuristicTest do
                 |y|y|y| | | | |
                 /
 
-      winning_moves = Heuristic.winning_moves(board, :yellow)
-      assert {1, 4} in winning_moves
-      assert {4, 1} in winning_moves
+      direct_wins = Heuristic.direct_wins(board, :yellow)
+      assert {1, 4} in direct_wins
+      assert {4, 1} in direct_wins
     end
   end
 

@@ -51,7 +51,7 @@
 #   #     """
 #   #     |> Board.parse()
 
-#   #   assert [{1, 4}] == Solver.winning_moves(board, :yellow)
+#   #   assert [{1, 4}] == Solver.direct_wins(board, :yellow)
 #   # end
 
 #   # test "winning moves, multiple" do
@@ -67,7 +67,7 @@
 #   #     """
 #   #     |> Board.parse()
 
-#   #   assert [{1, 4}, {2, 4}] == Solver.winning_moves(board, :yellow)
+#   #   assert [{1, 4}, {2, 4}] == Solver.direct_wins(board, :yellow)
 #   # end
 
 #   # test "losing moves, none" do
