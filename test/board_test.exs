@@ -282,6 +282,84 @@ defmodule C4.BoardTest do
     end
   end
 
+  describe "losing_move?/3" do
+    test "returns true when move allows opponent to win immediately" do
+      board = ~b/
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                |r|r|r| | | | |
+                |y|y|y| | | | |
+                /
+
+      # Playing at {4, 1} allows red to win by playing at {4, 2}
+      assert Board.losing_move?(board, {4, 1}, :yellow) == true
+    end
+
+    test "returns true when move creates vertical winning opportunity for opponent" do
+      board = ~b/
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                |r| | | | | | |
+                |r| | | | | | |
+                |r|y| | | | | |
+                /
+
+      # Playing at {1, 4} allows red to win by playing at {1, 5}
+      assert Board.losing_move?(board, {1, 4}, :yellow) == false
+    end
+
+    test "returns true when move creates diagonal winning opportunity for opponent" do
+      board = ~b/
+                | | | | | | | |
+                | | | | | | | |
+                |r| | | | | | |
+                |y|r| | | | | |
+                |y|y|r| | | | |
+                |y|y|y| | | | |
+                /
+
+      # Playing at {4, 1} allows red to win diagonally by playing at {4, 2}
+      assert Board.losing_move?(board, {4, 1}, :yellow) == false
+    end
+
+    test "returns false when move doesn't create winning opportunity for opponent" do
+      board = ~b/
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                |r|r|r| | | | |
+                |y|y|y| | | | |
+                /
+
+      # Playing at {3, 1} doesn't create any immediate winning opportunity for red
+      assert Board.losing_move?(board, {4, 1}, :yellow) == true
+    end
+
+    test "returns false for empty board" do
+      board = Board.new()
+
+      # No moves on empty board create immediate winning opportunities
+      assert Board.losing_move?(board, {4, 1}, :yellow) == false
+    end
+
+    test "returns false when move blocks opponent's winning opportunity" do
+      board = ~b/
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                |r|y|r|r| |r| |
+                |y|r|y|y| |r| |
+                /
+      # Playing at {4, 1} blocks red's winning move, so it's not a losing move
+      assert Board.losing_move?(board, {5, 1}, :yellow) == true
+    end
+  end
+
   describe "sigil_b/2" do
     test "creates board from string representation" do
       board = ~b/
