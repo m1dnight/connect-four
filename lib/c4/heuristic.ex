@@ -35,30 +35,55 @@ defmodule C4.Heuristic do
   """
   @spec score_board(Board.t(), player()) :: integer()
   def score_board(board, player) do
-    opponent = if player == :yellow, do: :red, else: :yellow
+    opponent = Board.opponent(player)
 
     # if the board is winnable by the opponent, give it the worst score.
-    score =
-      if direct_wins(board, opponent) != [] do
+    cond do
+      Board.winner?(board) == player ->
+        200_000
+
+      Board.winner?(board) == opponent ->
+        -200_000
+
+      not Enum.empty?(direct_wins(board, opponent)) ->
         -10_000
-      else
+
+      not Enum.empty?(direct_wins(board, player)) ->
+        10_000
+
+      true ->
         0
-      end
+    end
 
-    score =
-      wins()
-      |> Enum.reduce(score, fn positions, score ->
-        # IO.inspect rate_series(board, positions, player), label: "#{inspect positions}"
-        score + rate_series(board, positions, player)
-      end)
+    # score =
+    #   if Enum.empty?(direct_wins(board, opponent)) do
+    #     0
+    #   else
+    #     -10_000
+    #   end
 
-    opponent_score =
-      wins()
-      |> Enum.reduce(0, fn positions, score ->
-        score + rate_series(board, positions, opponent)
-      end)
+    # # if the board is immediatly winnable by the player, give it the best score.
+    # score =
+    #   if Enum.empty?(direct_wins(board, opponent)) do
+    #     0
+    #   else
+    #     -10_000
+    #   end
 
-    score - opponent_score
+    # score =
+    #   wins()
+    #   |> Enum.reduce(score, fn positions, score ->
+    #     # IO.inspect rate_series(board, positions, player), label: "#{inspect positions}"
+    #     score + rate_series(board, positions, player)
+    #   end)
+
+    # opponent_score =
+    #   wins()
+    #   |> Enum.reduce(0, fn positions, score ->
+    #     score + rate_series(board, positions, opponent)
+    #   end)
+
+    # score - opponent_score
   end
 
   @spec rate_series(Board.t(), [position()], player()) :: number()
