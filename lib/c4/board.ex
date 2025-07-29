@@ -6,12 +6,24 @@ defmodule C4.Board do
   use C4.Types
 
   alias C4.Board
+
   import C4.Constants
 
   typedstruct do
+    @typedoc """
+    Represents a board, the player, and the opponent.
+    """
     field(:board, %{position() => token()})
     field(:player, token(), default: :yellow)
     field(:opponent, token(), default: :red)
+  end
+
+  typedstruct module: Position do
+    @typedoc """
+    Represents a position on the board.
+    """
+    field(:column, non_neg_integer())
+    field(:row, non_neg_integer())
   end
 
   @doc """
@@ -32,14 +44,23 @@ defmodule C4.Board do
   end
 
   @doc """
+  Generates a random board.
+  """
+  @spec random(non_neg_integer()) :: Board.t()
+  def random(tokens \\ 5) do
+    Enum.reduce(1..tokens, new(), fn _, board ->
+      token = Enum.shuffle([:red, :yellow]) |> hd()
+      position = board |> playable_positions() |> Enum.shuffle() |> hd()
+      put(board, position, token)
+    end)
+  end
+
+  @doc """
   Put a token on the given position.
   """
   @spec put(Board.t(), position(), token()) :: Board.t()
   def put(board, position, token) do
-    new_grid =
-      board.board
-      |> Map.put(position, token)
-
+    new_grid = Map.put(board.board, position, token)
     %{board | board: new_grid}
   end
 
@@ -64,17 +85,24 @@ defmodule C4.Board do
   """
   @spec playable_positions(Board.t()) :: [position()]
   def playable_positions(board) do
-    for column <- 1..columns() do
-      1..rows()
-      |> Enum.reduce_while(nil, fn row, _ ->
-        if empty?(board, {column, row}) do
-          {:halt, [{column, row}]}
-        else
-          {:cont, []}
-        end
-      end)
-    end
-    |> Enum.concat()
+    1..columns()
+    |> Enum.map(&playable_position(board, &1))
+    |> Enum.reject(&(&1 == nil))
+  end
+
+  @doc """
+  Returns the first free row in the given column.
+  """
+  @spec playable_position(Board.t(), non_neg_integer()) :: position() | nil
+  def playable_position(board, column) do
+    1..rows()
+    |> Enum.reduce_while(nil, fn row, _ ->
+      if empty?(board, {column, row}) do
+        {:halt, {column, row}}
+      else
+        {:cont, nil}
+      end
+    end)
   end
 
   @doc """
@@ -86,7 +114,7 @@ defmodule C4.Board do
     wins()
     |> Enum.reduce_while(false, fn positions, _ ->
       positions
-      |> same_token?(board)
+      |> same_player?(board)
       |> case do
         false ->
           {:cont, false}
@@ -104,14 +132,14 @@ defmodule C4.Board do
   Given a series of positions, checks if theyre all the same token. Returns
   false, or the token in case theyre all the same.
   """
-  @spec same_token?([position()], Board.t()) :: false | token()
-  def same_token?(positions, board) do
+  @spec same_player?([position()], Board.t()) :: false | token()
+  def same_player?(positions, board) do
     positions
     |> Enum.map(&get(board, &1))
     |> Enum.dedup()
     |> case do
-      [token] ->
-        token
+      [player] ->
+        player
 
       _ ->
         false
@@ -126,7 +154,7 @@ defmodule C4.Board do
     board = put(board, position, player)
 
     wins()
-    |> Enum.filter(&(Enum.member?(&1, position) and player == same_token?(&1, board)))
+    |> Enum.filter(&(Enum.member?(&1, position) and player == same_player?(&1, board)))
     |> Enum.empty?()
     |> Kernel.not()
   end
@@ -154,22 +182,9 @@ defmodule C4.Board do
         end
 
       IO.puts(to_string(row) <> " |" <> Enum.join(row_cells, "|") <> "|")
-      # IO.puts List.duplicate("-", 15)
     end
 
     board
-  end
-
-  @doc """
-  Generates a random board.
-  """
-  @spec random(non_neg_integer()) :: Board.t()
-  def random(tokens \\ 5) do
-    Enum.reduce(1..tokens, new(), fn _, board ->
-      token = Enum.shuffle([:red, :yellow]) |> hd()
-      position = board |> playable_positions() |> Enum.shuffle() |> hd()
-      put(board, position, token)
-    end)
   end
 
   @doc """

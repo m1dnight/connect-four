@@ -9,8 +9,8 @@ defmodule C4.Tui.State do
   alias C4.Board
   alias C4.Solver
   alias C4.Solver.Move
-  alias Ratatouille.Runtime.Command
   alias C4.Tui.State
+  alias Ratatouille.Runtime.Command
 
   import C4.Constants
 
