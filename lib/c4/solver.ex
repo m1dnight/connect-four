@@ -4,8 +4,11 @@ defmodule C4.Solver do
   """
   use TypedStruct
   use C4.Types
+
   alias C4.Board
   alias C4.Heuristic
+
+  import C4.Constants
 
   @depth 6
 
@@ -36,7 +39,7 @@ defmodule C4.Solver do
   """
   @spec center_distance(Move.t()) :: float()
   def center_distance(%{position: {col, _}}) do
-    abs(col - 3.5)
+    abs(col - columns() / 2)
   end
 
   @spec minimax(Board.t(), player()) :: Move.t() | {:winner, player()}
