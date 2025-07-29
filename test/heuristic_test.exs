@@ -220,8 +220,8 @@ defmodule C4.HeuristicTest do
       assert score > 0
     end
 
-      test "scores opponent advantage negatively" do
-        board = ~b/
+    test "scores opponent advantage negatively" do
+      board = ~b/
                   | | | | | | | |
                   | | | | | | | |
                   | | | | | | | |
@@ -230,13 +230,13 @@ defmodule C4.HeuristicTest do
                   |r|r|r| |y| | |
                   /
 
-        score = Heuristic.score_board(board, :yellow)
-        # Red has 3 in a row (threat), yellow has 1 player - should be negative
-        assert score < 0
-      end
+      score = Heuristic.score_board(board, :yellow)
+      # Red has 3 in a row (threat), yellow has 1 player - should be negative
+      assert score < 0
+    end
 
-      test "considers all winning combinations" do
-        board = ~b/
+    test "considers all winning combinations" do
+      board = ~b/
                   | | | | | | | |
                   | | | | | | | |
                   | | | | | | | |
@@ -245,10 +245,10 @@ defmodule C4.HeuristicTest do
                   |y|r| | | | | |
                   /
 
-        score = Heuristic.score_board(board, :yellow)
-        # Yellow has strong vertical position
-        assert score > 0
-      end
+      score = Heuristic.score_board(board, :yellow)
+      # Yellow has strong vertical position
+      assert score > 0
+    end
   end
 
   describe "score_move/3" do

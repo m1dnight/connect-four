@@ -183,12 +183,12 @@ defmodule C4.Board do
   Pretty prints a board to the console.
   """
   @spec pretty_print(Board.t(), [position()]) :: Board.t()
-  def pretty_print(%Board{} = board, highlights \\ []) do
+  def pretty_print(%Board{} = board, _highlights \\ []) do
     IO.puts("   " <> Enum.map_join(1..columns(), " ", &to_string/1) <> "")
 
     player = "■"
 
-    board = Enum.reduce(highlights, board, fn pos, board -> put(board, pos, :highlight) end)
+    # board = Enum.reduce(highlights, board, fn pos, board -> put(board, pos, :highlight) end)
 
     for row <- rows()..1//-1 do
       row_cells =
@@ -197,7 +197,7 @@ defmodule C4.Board do
             :empty -> IO.ANSI.white() <> " " <> IO.ANSI.reset()
             :yellow -> IO.ANSI.yellow() <> player <> IO.ANSI.reset()
             :red -> IO.ANSI.red() <> player <> IO.ANSI.reset()
-            :highlight -> IO.ANSI.bright() <> player <> IO.ANSI.reset()
+            # :highlight -> IO.ANSI.bright() <> player <> IO.ANSI.reset()
           end
         end
 

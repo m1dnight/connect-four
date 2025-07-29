@@ -8,11 +8,6 @@ defmodule C4.Heuristic do
   alias C4.Board
   import C4.Constants
 
-  @doc "Returns the opponent of the given player's name."
-  @spec opponent(player()) :: player()
-  def opponent(:yellow), do: :red
-  def opponent(:red), do: :yellow
-
   @doc """
   For a given player, lists the moves that will cause an instant win.
   """
@@ -30,13 +25,7 @@ defmodule C4.Heuristic do
   def losing_moves(board, player) do
     board
     |> Board.playable_positions()
-    |> Enum.filter(fn position ->
-      board
-      |> Board.put(position, player)
-      |> direct_wins(board.opponent)
-      |> Enum.empty?()
-      |> Kernel.not()
-    end)
+    |> Enum.filter(&Board.losing_move?(board, &1, player))
   end
 
   @doc """
