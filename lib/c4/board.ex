@@ -182,29 +182,57 @@ defmodule C4.Board do
   @doc """
   Pretty prints a board to the console.
   """
-  @spec pretty_print(Board.t(), [position()]) :: Board.t()
-  def pretty_print(%Board{} = board, _highlights \\ []) do
-    IO.puts("   " <> Enum.map_join(1..columns(), " ", &to_string/1) <> "")
+  @spec pretty_print(Board.t()) :: Board.t()
+  def pretty_print(%Board{} = board) do
+    to_str(board)
+    |> Enum.join("\n")
+    |> IO.puts()
+
+    board
+  end
+
+  @spec pretty_print(Board.t(), Board.t()) :: :ok
+  def pretty_print(%Board{} = board, %Board{} = new_board) do
+    left = to_str(board)
+    right = to_str(new_board)
+
+    Enum.zip(left, right)
+    |> Enum.map_join("\n", fn {l, r} -> "#{l}       #{r}" end)
+    |> IO.puts()
+
+    :ok
+  end
+
+  @doc """
+  Pretty prints a board to the console.
+  """
+  @spec to_str(Board.t()) :: [String.t()]
+  def to_str(%Board{} = board) do
+    prefix = "   " <> Enum.map_join(1..columns(), " ", &to_string/1) <> " "
 
     player = "■"
 
-    # board = Enum.reduce(highlights, board, fn pos, board -> put(board, pos, :highlight) end)
+    rows =
+      for row <- rows()..1//-1 do
+        row_cells =
+          for column <- 1..columns() do
+            case Map.get(board.board, {column, row}) do
+              :empty ->
+                IO.ANSI.white() <> " " <> IO.ANSI.reset()
 
-    for row <- rows()..1//-1 do
-      row_cells =
-        for column <- 1..columns() do
-          case Map.get(board.board, {column, row}) do
-            :empty -> IO.ANSI.white() <> " " <> IO.ANSI.reset()
-            :yellow -> IO.ANSI.yellow() <> player <> IO.ANSI.reset()
-            :red -> IO.ANSI.red() <> player <> IO.ANSI.reset()
-            # :highlight -> IO.ANSI.bright() <> player <> IO.ANSI.reset()
+              :yellow ->
+                IO.ANSI.yellow() <> player <> IO.ANSI.reset()
+
+              :red ->
+                IO.ANSI.red() <> player <> IO.ANSI.reset()
+                # :highlight -> IO.ANSI.bright() <> player <> IO.ANSI.reset()
+            end
           end
-        end
 
-      IO.puts(to_string(row) <> " |" <> Enum.join(row_cells, "|") <> "|")
-    end
+        to_string(row) <> " |" <> Enum.join(row_cells, "|") <> "|"
+      end
 
-    board
+    [prefix | rows]
   end
 
   @doc """

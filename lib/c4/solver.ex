@@ -32,18 +32,16 @@ defmodule C4.Solver do
   """
   @spec move_compare(Move.t(), Move.t()) :: boolean()
   def move_compare(move_a, move_b) do
-    cond do
-      move_a.score == move_b.score ->
-        center_distance(move_a) > center_distance(move_b)
-
-      true ->
-        move_a.score > move_b.score
+    if move_a.score == move_b.score do
+      center_distance(move_a) > center_distance(move_b)
+    else
+      move_a.score > move_b.score
     end
   end
 
   @spec minimax(Board.t(), player()) :: Move.t() | {:winner, player()}
   def minimax(board, player, depth \\ @depth) do
-    minimax(board, @depth, player, false)
+    minimax(board, depth, player, false)
   end
 
   @spec minimax(Board.t(), depth(), player(), boolean()) :: Move.t() | {:winner, player()}
@@ -61,35 +59,37 @@ defmodule C4.Solver do
     |> Enum.sort()
     |> Enum.map(&minimax_score_move(board, depth, player, opponent?, &1))
     |> Enum.sort(&move_compare/2)
-    |> debug(depth)
     |> if(opponent?, do: &Enum.reverse/1, else: & &1).()
     |> hd()
-  end
-
-  def debug(moves, depth) do
-    if depth == @depth and Process.get(:debug) do
-      IO.inspect(moves)
-    end
-
-    moves
   end
 
   @doc """
   Given a board, and a move, returns the score for this board if the player makes that move.
   If the player wins, the score is returned. If the player does not win, the score is computed using minimax.
   """
-  @spec minimax_score_move(Board.t(), non_neg_integer(), player(), boolean(), position()) :: Move.t()
+  @spec minimax_score_move(Board.t(), non_neg_integer(), player(), boolean(), position()) ::
+          Move.t()
   def minimax_score_move(board, depth, player, opponent?, position) do
     move_maker = if opponent?, do: Board.opponent(player), else: player
+    opponent = Board.opponent(player)
 
     board = Board.put(board, position, move_maker)
 
-    if Board.winner?(board) == player do
-      score = Heuristic.score_board(board, player)
-      %Move{score: score, position: position}
-    else
-      %{score: score} = minimax(board, depth - 1, player, not opponent?)
-      %Move{score: score, position: position}
+    cond do
+      # if this moves allows the player to win, give it the highest score.
+      Board.winner?(board) == player ->
+        %Move{score: 1_000_000, position: position}
+
+      # if this move allows the opponent to win, do not make the move.
+      Enum.count(Heuristic.direct_wins(board, opponent)) > 0 ->
+        %Move{score: -1_000_000, position: position}
+
+      # figure out score for other moves. Give them a lower score than direct
+      # win/losses to make sure these moves are prioritized over the recursive
+      # scoring.
+      true ->
+        %{score: score} = minimax(board, depth - 1, player, not opponent?)
+        %Move{score: score * 0.9, position: position}
     end
   end
 end

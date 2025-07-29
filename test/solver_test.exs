@@ -2,8 +2,6 @@ defmodule C4.SolverTest do
   use ExUnit.Case
   doctest C4.Heuristic
 
-  alias C4.Board
-  alias C4.Heuristic
   alias C4.Solver
   import C4.Board
 
@@ -32,12 +30,22 @@ defmodule C4.SolverTest do
                 |y|y|y| | | | |
                 /
 
-      Process.put(:debug, true)
-      # Process.put(:move, {4, 1, :yellow})
-
-      move = Solver.minimax(board, :yellow, 2)
+      move = Solver.minimax(board, :yellow)
       assert move.position in [{4, 1}, {1, 4}]
     end
 
+    test "identifies vertical blocking move" do
+      board = ~b/
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                |r| | | | | | |
+                |r| | | | | | |
+                |r| | | | | | |
+                /
+
+      move = Solver.minimax(board, :yellow)
+      assert move.position == {1, 4}
+    end
   end
 end

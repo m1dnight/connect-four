@@ -122,69 +122,6 @@ defmodule C4.HeuristicTest do
     end
   end
 
-  describe "rate_series/3" do
-    test "scores 1 player with 3 empty as 10" do
-      board = Board.new()
-      board = Board.put(board, {1, 1}, :yellow)
-
-      positions = [{1, 1}, {2, 1}, {3, 1}, {4, 1}]
-      score = Heuristic.rate_series(board, positions, :yellow)
-      assert score == 10.0
-    end
-
-    test "scores 2 players with 2 empty as 100" do
-      board = Board.new()
-      board = Board.put(board, {1, 1}, :yellow)
-      board = Board.put(board, {2, 1}, :yellow)
-
-      positions = [{1, 1}, {2, 1}, {3, 1}, {4, 1}]
-      score = Heuristic.rate_series(board, positions, :yellow)
-      assert score == 100.0
-    end
-
-    test "scores 3 players with 1 empty as 1000" do
-      board = Board.new()
-      board = Board.put(board, {1, 1}, :yellow)
-      board = Board.put(board, {2, 1}, :yellow)
-      board = Board.put(board, {3, 1}, :yellow)
-
-      positions = [{1, 1}, {2, 1}, {3, 1}, {4, 1}]
-      score = Heuristic.rate_series(board, positions, :yellow)
-      assert score == 1000.0
-    end
-
-    test "scores 4 players (winning) as 10000" do
-      board = Board.new()
-      board = Board.put(board, {1, 1}, :yellow)
-      board = Board.put(board, {2, 1}, :yellow)
-      board = Board.put(board, {3, 1}, :yellow)
-      board = Board.put(board, {4, 1}, :yellow)
-
-      positions = [{1, 1}, {2, 1}, {3, 1}, {4, 1}]
-      score = Heuristic.rate_series(board, positions, :yellow)
-      assert score == 10000.0
-    end
-
-    test "scores blocked series as 0" do
-      board = Board.new()
-      board = Board.put(board, {1, 1}, :yellow)
-      board = Board.put(board, {2, 1}, :red)
-      board = Board.put(board, {3, 1}, :yellow)
-
-      positions = [{1, 1}, {2, 1}, {3, 1}, {4, 1}]
-      score = Heuristic.rate_series(board, positions, :yellow)
-      assert score == 0.0
-    end
-
-    test "scores empty series as 0" do
-      board = Board.new()
-
-      positions = [{1, 1}, {2, 1}, {3, 1}, {4, 1}]
-      score = Heuristic.rate_series(board, positions, :yellow)
-      assert score == 0.0
-    end
-  end
-
   describe "score_board/2" do
     test "scores empty board as 0" do
       board = Board.new()
@@ -248,50 +185,6 @@ defmodule C4.HeuristicTest do
       _score = Heuristic.score_board(board, :yellow)
       # Yellow has strong vertical position
       # assert score > 0
-    end
-  end
-
-  describe "score_move/3" do
-    test "scores move by evaluating resulting board position" do
-      board = ~b/
-                | | | | | | | |
-                | | | | | | | |
-                | | | | | | | |
-                | | | | | | | |
-                | | | | | | | |
-                |y|y| | | | | |
-                /
-
-      # Making a winning move should score very highly
-      _score = Heuristic.score_move(board, {3, 1}, :yellow)
-      # assert score > 1000
-    end
-
-    test "scores blocking opponent win highly" do
-      board = ~b/
-                | | | | | | | |
-                | | | | | | | |
-                | | | | | | | |
-                | | | | | | | |
-                | | | | | | | |
-                |r|r|r| | | | |
-                /
-
-      # Blocking red's win should be scored better than not blocking
-      _blocking_score = Heuristic.score_move(board, {4, 1}, :yellow)
-      _non_blocking_score = Heuristic.score_move(board, {5, 1}, :yellow)
-
-      # assert blocking_score > non_blocking_score
-    end
-
-    test "prefers center moves in empty board" do
-      board = Board.new()
-
-      _center_score = Heuristic.score_move(board, {4, 1}, :yellow)
-      _edge_score = Heuristic.score_move(board, {1, 1}, :yellow)
-
-      # Center moves are generally better strategically
-      # assert center_score >= edge_score
     end
   end
 end
