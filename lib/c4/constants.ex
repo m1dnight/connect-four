@@ -61,4 +61,12 @@ defmodule C4.Constants do
   """
   @spec rows :: non_neg_integer()
   def rows, do: @rows
+
+  @doc """
+  Returns all valid positions on the board.
+  """
+  @spec all_positions :: [position()]
+  def all_positions do
+    for r <- 1..rows(), c <- 1..columns(), do: {c, r}
+  end
 end
