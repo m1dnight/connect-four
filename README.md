@@ -1,6 +1,16 @@
 # C4
 
-**TODO: Add description**
+Connect Four is a game where the goal is to be the first to form a row of four discs.
+
+
+## Run
+
+```shell
+mix run -e "Ratatouille.run(C4.Tui)"
+```
+
+Use cursor keys <kbd>←</kbd> and <kbd>→</kbd> and space bar <kbd>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</kbd> to play.
+
 
 ## Installation
 
