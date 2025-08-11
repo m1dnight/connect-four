@@ -2,6 +2,10 @@
 
 Connect Four is a game where the goal is to be the first to form a row of four discs.
 
+
+[![asciicast](https://asciinema.org/a/cQ1X31RieLSPtCXNEz7IqdsEk.svg)](https://asciinema.org/a/cQ1X31RieLSPtCXNEz7IqdsEk)
+
+
 ## Run
 
 Start the game
