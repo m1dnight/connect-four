@@ -25,7 +25,8 @@ defmodule C4.MixProject do
       {:typedstruct, "~> 0.5.3"},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:ratatouille, "~> 0.5.1"}
+      {:ratatouille, "~> 0.5.1"},
+      {:garnish, "~> 0.2.0"}
     ]
   end
 end

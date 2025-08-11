@@ -2,9 +2,9 @@ defmodule C4.Tui do
   @moduledoc """
   Logic to render the game in a terminal.
   """
-  @behaviour Ratatouille.App
+  @behaviour Garnish.App
 
-  import Ratatouille.View
+  import Garnish.View
   import C4.Constants
 
   alias C4.Board
@@ -12,25 +12,31 @@ defmodule C4.Tui do
 
   use C4.Types
 
-  @left {:event, %{key: 65514}}
-  @right {:event, %{key: 65515}}
-  @drop {:event, %{key: 32}}
-  @drop {:event, %{key: 32}}
-  @debug {:event, %{ch: 100}}
+  @left :kcuf1
+  @right :kcub1
+  @drop 32
+  @debug 100
 
   def init(_context) do
-    %State{}
+    {:ok, %State{}}
   end
 
-  def update(state, msg) do
-    case msg do
-      @left -> State.next_column(state)
-      @right -> State.previous_column(state)
-      @drop -> State.make_move(state)
-      @debug -> State.debugging(state)
-      {:ai_move, move} -> State.ai_moved(state, move)
-      _ -> %{state | debug: [inspect(msg) | state.debug]}
-    end
+  def handle_key(%{key: key}, state) do
+    new_state =
+      case key do
+        @left -> State.next_column(state)
+        @right -> State.previous_column(state)
+        @drop -> State.make_move(state)
+        @debug -> State.debugging(state)
+        {:ai_move, move} -> State.ai_moved(state, move)
+        _ -> %{state | debug: [inspect(key) | state.debug]}
+      end
+
+    {:ok, new_state}
+  end
+
+  def handle_info({:ai_move, move}, state) do
+    {:ok, State.ai_moved(state, move)}
   end
 
   def render(state) do
@@ -82,7 +88,7 @@ defmodule C4.Tui do
     end
   end
 
-  @spec move({position(), player()}) :: Ratatouille.Renderer.Element.t()
+  @spec move({position(), player()}) :: Garnish.Renderer.Element.t()
   defp move({position, player}) do
     color =
       case player do
@@ -97,7 +103,7 @@ defmodule C4.Tui do
     end
   end
 
-  @spec move_message(State.t()) :: Ratatouille.Renderer.Element.t()
+  @spec move_message(State.t()) :: Garnish.Renderer.Element.t()
   defp move_message(state) when state.game_over do
     text(content: "Game Over!")
   end
@@ -106,7 +112,7 @@ defmodule C4.Tui do
     text(content: "#{String.capitalize("#{state.player}")}'s move", color: state.player)
   end
 
-  @spec board(State.t()) :: Ratatouille.Renderer.Element.t()
+  @spec board(State.t()) :: Garnish.Renderer.Element.t()
   defp board(state) do
     table do
       # column numbers row

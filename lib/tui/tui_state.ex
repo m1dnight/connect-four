@@ -10,7 +10,6 @@ defmodule C4.Tui.State do
   alias C4.Solver
   alias C4.Solver.Move
   alias C4.Tui.State
-  alias Ratatouille.Runtime.Command
 
   import C4.Constants
 
@@ -22,7 +21,7 @@ defmodule C4.Tui.State do
     field(:selected_column, non_neg_integer(), default: 1)
     field(:waiting, boolean(), default: false)
     field(:debug, [String.t()], default: [])
-    field(:debugging, boolean(), default: true)
+    field(:debugging, boolean(), default: false)
   end
 
   @doc """
@@ -101,13 +100,18 @@ defmodule C4.Tui.State do
     |> game_over?()
   end
 
-  @spec ai_move(State.t()) :: State.t() | {State.t(), Command.t()}
+  @spec ai_move(State.t()) :: State.t()
   def ai_move(state) when state.waiting, do: state
 
   def ai_move(state) do
-    command = Command.new(fn -> Solver.minimax(state.board, :yellow) end, :ai_move)
-    state = %{state | waiting: true, player: :yellow}
-    {state, command}
+    this = self()
+
+    Task.start(fn ->
+      move = Solver.minimax(state.board, :yellow)
+      send(this, {:ai_move, move})
+    end)
+
+    %{state | waiting: true, player: :yellow}
   end
 
   # ----------------------------------------------------------------------------
