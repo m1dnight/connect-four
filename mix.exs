@@ -26,7 +26,8 @@ defmodule C4.MixProject do
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ratatouille, "~> 0.5.1"},
-      {:garnish, "~> 0.2.0"}
+      {:garnish, "~> 0.2.0"},
+      {:libcluster, "~> 3.5"}
     ]
   end
 end

@@ -70,12 +70,59 @@ defmodule C4.Solver do
   """
   @spec score_moves(Board.t(), non_neg_integer(), player(), boolean(), [position()]) :: [Move.t()]
   def score_moves(board, depth, player, opponent?, positions) do
-    score_fn = &minimax_score_move(board, depth, player, opponent?, &1)
+    score_fn =
+      case Node.list() do
+        # no distribution
+        [] ->
+          &minimax_score_move(board, depth, player, opponent?, &1)
+
+        # multiple nodes, distribute the workload
+        nodes ->
+          node = Enum.shuffle(nodes) |> hd()
+          &minimax_score_move_remote(node, board, depth, player, opponent?, &1)
+      end
 
     positions
     # |> Enum.map(fn move -> score_fn.(move) end)
     |> Enum.map(&Task.async(fn -> score_fn.(&1) end))
     |> Task.await_many(:infinity)
+  end
+
+  @doc """
+  Run the computation for this move on the given node.
+
+  Await the node to return its result. If it fails, compute locally.
+  """
+  @spec minimax_score_move_remote(
+          atom(),
+          Board.t(),
+          non_neg_integer(),
+          player(),
+          boolean(),
+          position()
+        ) :: Move.t()
+
+  def minimax_score_move_remote(node, board, depth, player, opponent?, position) do
+    here = self()
+    search_tag = make_ref()
+
+    # spawn the computation and monitor the process
+    {pid, ref} =
+      Node.spawn_monitor(node, fn ->
+        result = minimax_score_move(board, depth, player, opponent?, position)
+
+        send(here, {result, search_tag})
+      end)
+
+    # wait for the node to respond
+    receive do
+      {result, ^search_tag} ->
+        result
+
+      {:DOWN, ^ref, :process, ^pid, :normal} ->
+        Logger.warning("falling back to local computation")
+        minimax_score_move(board, depth, player, opponent?, position)
+    end
   end
 
   @doc """

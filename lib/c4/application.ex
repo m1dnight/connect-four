@@ -5,6 +5,9 @@ defmodule C4.Application do
 
   @impl true
   def start(_type, _args) do
+    # libcluster config
+    topologies = Application.get_env(:libcluster, :topologies)
+
     # garnish config
     ssh_port = Application.get_env(:connect_four, :ssh_port)
     ssh_host = Application.get_env(:connect_four, :ssh_host)
@@ -13,6 +16,7 @@ defmodule C4.Application do
     {:ok, ref} = :ssh.daemon(ssh_host, ssh_port, ssh_opts)
 
     children = [
+      {Cluster.Supervisor, [topologies, [name: Clustertest.ClusterSupervisor]]},
       {Registry, [keys: :duplicate, name: C4.Sessions]}
     ]
 

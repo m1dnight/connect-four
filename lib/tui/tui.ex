@@ -18,6 +18,20 @@ defmodule C4.Tui do
   @debug 100
 
   def init(_context) do
+    # monitor for new nodes connecting to the system
+    :net_kernel.monitor_nodes(true)
+
+    # notify all games a new one started
+    Registry.dispatch(C4.Sessions, :game, fn entries ->
+      for {pid, _} <- entries do
+        send(pid, {:session, self()})
+        Process.monitor(pid)
+      end
+    end)
+
+    # register as a game
+    Registry.register(C4.Sessions, :game, [])
+
     {:ok, %State{}}
   end
 
@@ -58,10 +72,11 @@ defmodule C4.Tui do
 
   def render(state) do
     games = Registry.count(C4.Sessions)
+    nodes = Enum.count(Node.list()) + 1
 
     bar =
       bar do
-        label(content: "#{games} sessions")
+        label(content: "#{nodes} compute nodes, #{games} sessions")
       end
 
     view(top_bar: bar) do
@@ -85,6 +100,7 @@ defmodule C4.Tui do
                 table_row do
                   for column <- 0..4 do
                     move(column * 9 + row, Enum.at(state.moves, column * 9 + row, nil))
+                    # table_cell(content: "#{column * 10 + row} #{row}, #{column}")
                   end
                 end
               end
