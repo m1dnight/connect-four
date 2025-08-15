@@ -39,8 +39,32 @@ defmodule C4.Tui do
     {:ok, State.ai_moved(state, move)}
   end
 
+  def handle_info({:session, pid}, state) do
+    Process.monitor(pid)
+    {:ok, state}
+  end
+
+  def handle_info({:unhighlight, position}, state) do
+    if state.game_over do
+      {:ok, state}
+    else
+      {:ok, %{state | highlights: Enum.reject(state.highlights, &(&1 == position))}}
+    end
+  end
+
+  def handle_info(_, state) do
+    {:ok, state}
+  end
+
   def render(state) do
-    view do
+    games = Registry.count(C4.Sessions)
+
+    bar =
+      bar do
+        label(content: "#{games} sessions")
+      end
+
+    view(top_bar: bar) do
       row do
         column size: 4 do
           # Board Panel
@@ -56,8 +80,14 @@ defmodule C4.Tui do
         # Move history panel
         column size: 8 do
           panel title: "Moves" do
-            for move <- state.moves do
-              move(move)
+            table do
+              for row <- 0..8 do
+                table_row do
+                  for column <- 0..4 do
+                    move(column * 9 + row, Enum.at(state.moves, column * 9 + row, nil))
+                  end
+                end
+              end
             end
           end
         end
@@ -78,6 +108,10 @@ defmodule C4.Tui do
     column size: 12 do
       panel title: "Debugging" do
         table do
+          table_row do
+            table_cell(content: inspect(make_ref()))
+          end
+
           for d <- state.debug do
             table_row do
               table_cell(content: d <> "\n")
@@ -88,8 +122,12 @@ defmodule C4.Tui do
     end
   end
 
-  @spec move({position(), player()}) :: Garnish.Renderer.Element.t()
-  defp move({position, player}) do
+  @spec move(number(), {position(), player()}) :: Garnish.Renderer.Element.t()
+  defp move(_, nil) do
+    table_cell(content: "")
+  end
+
+  defp move(index, {position, player}) do
     color =
       case player do
         :red -> :red
@@ -98,9 +136,7 @@ defmodule C4.Tui do
 
     {col, row} = position
 
-    label do
-      text(content: "(#{col}, #{row})", color: color)
-    end
+    table_cell(content: "#{index}: (#{col}, #{row})", color: color)
   end
 
   @spec move_message(State.t()) :: Garnish.Renderer.Element.t()
@@ -154,7 +190,11 @@ defmodule C4.Tui do
                 p -> p
               end
 
-            table_cell(content: "■", color: player_color)
+            if {col, row} in state.highlights do
+              table_cell(content: "X", color: player_color)
+            else
+              table_cell(content: "■", color: player_color)
+            end
           end
         end
       end

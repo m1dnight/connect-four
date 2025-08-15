@@ -5,20 +5,16 @@ defmodule C4.Application do
 
   @impl true
   def start(_type, _args) do
-    opts = [
-      system_dir:
-        :code.priv_dir(:connect_four)
-        |> Path.join(".keys")
-        |> Path.expand()
-        |> to_charlist,
-      ssh_cli: {Garnish, app: C4.Tui},
-      # ssh_cli: {Garnish, app: Counter},
-      no_auth_needed: true
+    # garnish config
+    ssh_port = Application.get_env(:connect_four, :ssh_port)
+    ssh_host = Application.get_env(:connect_four, :ssh_host)
+    ssh_opts = Application.get_env(:connect_four, :garnish)
+    # start the ssh daemon
+    {:ok, ref} = :ssh.daemon(ssh_host, ssh_port, ssh_opts)
+
+    children = [
+      {Registry, [keys: :duplicate, name: C4.Sessions]}
     ]
-
-    {:ok, ref} = :ssh.daemon({127, 0, 0, 1}, 2222, opts)
-
-    children = []
 
     opts = [strategy: :one_for_one, name: C4.Supervisor]
 

@@ -10,7 +10,9 @@ defmodule C4.Solver do
 
   import C4.Constants
 
-  @depth 5
+  require Logger
+
+  @depth 6
 
   typedstruct module: Move do
     use C4.Types
@@ -57,10 +59,23 @@ defmodule C4.Solver do
     board
     |> Board.playable_positions()
     |> Enum.sort()
-    |> Enum.map(&minimax_score_move(board, depth, player, opponent?, &1))
+    |> (&score_moves(board, depth, player, opponent?, &1)).()
     |> Enum.sort(&move_compare/2)
     |> if(opponent?, do: &Enum.reverse/1, else: & &1).()
     |> hd()
+  end
+
+  @doc """
+  Given a list of moves, computed the best score for all of them.
+  """
+  @spec score_moves(Board.t(), non_neg_integer(), player(), boolean(), [position()]) :: [Move.t()]
+  def score_moves(board, depth, player, opponent?, positions) do
+    score_fn = &minimax_score_move(board, depth, player, opponent?, &1)
+
+    positions
+    # |> Enum.map(fn move -> score_fn.(move) end)
+    |> Enum.map(&Task.async(fn -> score_fn.(&1) end))
+    |> Task.await_many(:infinity)
   end
 
   @doc """

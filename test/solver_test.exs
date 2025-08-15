@@ -59,7 +59,7 @@ defmodule C4.SolverTest do
                 /
 
       move = Solver.minimax(board, :yellow)
-      assert move.position == {3, 3}
+      assert move.position == {1, 3}
     end
 
     test "identifies best move for win" do

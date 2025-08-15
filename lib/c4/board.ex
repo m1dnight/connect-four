@@ -134,6 +134,26 @@ defmodule C4.Board do
   end
 
   @doc """
+  Returns the winning player and the winning moves.
+  """
+  @spec winner(Board.t()) :: {:yellow | :red, [position()]} | false
+  def winner(board) do
+    wins()
+    |> Enum.reduce_while(false, fn positions, _ ->
+      case same_player?(positions, board) do
+        false ->
+          {:cont, false}
+
+        :empty ->
+          {:cont, false}
+
+        player ->
+          {:halt, {player, positions}}
+      end
+    end)
+  end
+
+  @doc """
   Given a series of positions, checks if theyre all the same player. Returns
   false, or the player in case theyre all the same.
   """

@@ -5,7 +5,7 @@ defmodule C4.MixProject do
     [
       app: :connect_four,
       version: "0.1.0",
-      elixir: "~> 1.18",
+      elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -14,7 +14,7 @@ defmodule C4.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger, :runtime_tools, :wx],
+      extra_applications: [:logger, :runtime_tools],
       mod: {C4.Application, []}
     ]
   end

@@ -282,6 +282,115 @@ defmodule C4.BoardTest do
     end
   end
 
+  describe "winner/1" do
+    @describetag :this
+    test "returns false for empty board" do
+      board = Board.new()
+      assert Board.winner(board) == false
+    end
+
+    test "returns winner and positions for horizontal win" do
+      board = ~b/
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                |y|y|y|y| | | |
+                /
+
+      assert Board.winner(board) == {:yellow, [{1, 1}, {2, 1}, {3, 1}, {4, 1}]}
+    end
+
+    test "returns winner and positions for vertical win" do
+      board = ~b/
+                | | | | | | | |
+                | | | | | | | |
+                |y| | | | | | |
+                |y| | | | | | |
+                |y| | | | | | |
+                |y| | | | | | |
+                /
+
+      assert Board.winner(board) == {:yellow, [{1, 1}, {1, 2}, {1, 3}, {1, 4}]}
+    end
+
+    test "returns winner and positions for diagonal win (ascending)" do
+      board = ~b/
+                | | | | | | | |
+                | | | | | | | |
+                |y| | | | | | |
+                |r|y| | | | | |
+                |r|r|y| | | | |
+                |r|r|r|y| | | |
+                /
+
+      assert Board.winner(board) == {:yellow, [{1, 4}, {2, 3}, {3, 2}, {4, 1}]}
+    end
+
+    test "returns winner and positions for diagonal win (descending)" do
+      board = ~b/
+                | | | | | | | |
+                | | | | | | | |
+                | | | |y| | | |
+                | | |y|r| | | |
+                | |y|r|r| | | |
+                |y|r|r|r| | | |
+                /
+
+      assert Board.winner(board) == {:yellow, [{4, 4}, {3, 3}, {2, 2}, {1, 1}]}
+    end
+
+    test "returns winner for red player" do
+      board = ~b/
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                |r|r|r|r| | | |
+                /
+
+      assert Board.winner(board) == {:red, [{1, 1}, {2, 1}, {3, 1}, {4, 1}]}
+    end
+
+    test "returns false when no winner" do
+      board = ~b/
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                | | | | | | | |
+                |y|r|y| | | | |
+                |r|y|r| | | | |
+                /
+
+      assert Board.winner(board) == false
+    end
+
+    test "returns first winning line when multiple wins exist" do
+      board = ~b/
+                | | | | | | | |
+                | | | | | | | |
+                |y|y|y|y| | | |
+                |y|r|r|r| | | |
+                |y|r|r|r| | | |
+                |y|r|r|r| | | |
+                /
+
+      # Should return the first winning combination found
+      {winner, positions} = Board.winner(board)
+      assert winner == :yellow
+      assert length(positions) == 4
+      # Could be either the vertical or horizontal win for yellow
+      assert positions in [
+               # vertical
+               [{1, 1}, {1, 2}, {1, 3}, {1, 4}],
+               # horizontal
+               [{1, 3}, {2, 3}, {3, 3}, {4, 3}]
+             ]
+    end
+  end
+
   describe "losing_move?/3" do
     test "returns true when move allows opponent to win immediately" do
       board = ~b/
